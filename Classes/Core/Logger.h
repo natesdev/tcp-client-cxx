@@ -5,7 +5,7 @@
 class Logger
 {
 public:
-    Logger(const std::string &className);
+    Logger(const std::string &className, bool debugLogging = false);
 
     void Info(const std::string &methodName, const std::string &message);
     void Error(const std::string &methodName, const std::string &message);
@@ -14,4 +14,5 @@ public:
 
 private:
     std::string className;
+    bool debugLogging;
 };

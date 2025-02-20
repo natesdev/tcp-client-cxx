@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "Logger.h"
-#include "../../Main.h"
 
 #define COLOR_INFO "\033[34m"
 #define COLOR_ERROR "\033[31m"
@@ -10,8 +9,8 @@
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
 
-Logger::Logger(const std::string &className)
-    : className(className) {}
+Logger::Logger(const std::string &className, bool debugLogging)
+    : className(className), debugLogging(debugLogging) {}
 
 void Logger::Info(const std::string &methodName, const std::string &message)
 {
