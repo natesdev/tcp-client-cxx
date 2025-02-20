@@ -30,7 +30,6 @@
 *.exe
 *.out
 *.app
-showdownclient
 libm.dll
 
 .vscode

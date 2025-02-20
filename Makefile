@@ -1,21 +1,21 @@
 CXX = g++
-CXXFLAGS = -Wall -g -Wextra 
+CXXFLAGS = -Wall -g -Wextra -fPIC
 LIBS = -lz -lmongocxx -lbsoncxx
-TARGET = showdownclient
+TARGET = libm.dll
 
 SOURCES = $(wildcard *.cpp) \
           $(wildcard Classes/*.cpp) \
           $(wildcard Classes/*/*.cpp) \
           $(wildcard Packets/*.cpp) \
           $(wildcard Classes/*/*/*.cpp) \
-          $(wildcard Packets/*/*/*.cpp) 
-
+          $(wildcard Packets/*/*/*.cpp)
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(TARGET)
+
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET) $(LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $(TARGET) $(OBJECTS) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -23,4 +23,4 @@ $(TARGET): $(OBJECTS)
 clean:
 	rm -f $(TARGET) $(OBJECTS)
 
-.PHONY: all clean 
+.PHONY: all clean
