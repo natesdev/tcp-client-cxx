@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #include "Bytestream.h"
-//#include "ChecksumEncoder.h"
 #include "Core/Logger.h"
 
 Logger logger("Bytestream");
@@ -67,21 +66,13 @@ int Bytestream::readIntLittleEndian()
     return result;
 }
 
-LogicLong Bytestream::readLong()
-{
-    LogicLong logicLong;
-    logicLong.decode(this);
-    logger.Debug("readLong", "Low: " + std::to_string(logicLong.low) + " High:" + std::to_string(logicLong.high));
-    return logicLong;
-}
-
-long long Bytestream::readLongLong()
-{
+long Bytestream::readLong()
+{  
     bitoffset = 0;
     int high = readInt();
     int low = readInt();
 
-    return (static_cast<long long>(high) << 32) | (static_cast<unsigned int>(low));
+    return (static_cast<long>(high) << 32) | (low & 0xFFFFFFFFL);
 }
 
 int Bytestream::readShort()
@@ -137,20 +128,6 @@ std::string Bytestream::readString()
     return result;
 }
 
-/**
- * @brief Reads a variable-length integer from the bytestream.
- *
- * This function reads a variable-length integer (vint) from the message payload
- * starting at the current offset. The vint is encoded using a variable number
- * of bytes, with each byte containing 7 bits of the integer and a continuation
- * bit (the most significant bit). The continuation bit indicates whether there
- * are more bytes to read.
- *
- * The function updates the offset to point to the next byte after the last byte
- * of the vint. It also handles sign extension for negative numbers.
- *
- * @return The decoded variable-length integer.
- */
 int Bytestream::readVint()
 {
     int offset = this->offset;
@@ -232,15 +209,15 @@ bool Bytestream::readBoolean()
     return messagePayload[offset];
 }
 
-LogicLong Bytestream::readDataReference()
+long Bytestream::readDataReference()
 {
     int high = readVint();
     if (high == 0)
     {
-        return LogicLong(0, 0);
+        return 0;
     }
     int low = readVint();
-    return LogicLong(high, low);
+    return (static_cast<long>(high) << 32) | (low & 0xFFFFFFFFL);
 }
 
 std::vector<uint8_t> Bytestream::readBytes(size_t length)
@@ -352,13 +329,6 @@ void Bytestream::writeLong(int high, int low)
 {
     writeInt(high);
     writeInt(low);
-}
-
-void Bytestream::writeLongLong(LogicLong longlong)
-{
-    bitoffset = 0;
-    writeInt(longlong.high);
-    writeInt(longlong.low);
 }
 
 void Bytestream::writeShort(int value)
@@ -512,17 +482,6 @@ void Bytestream::writeCompressedString(const std::string &data)
     messagePayload.insert(messagePayload.end(), compressedText.begin(), compressedText.begin() + compressedSize);
 }
 
-std::vector<LogicLong> Bytestream::decodeLogicLongList()
-{
-    int length = readVint();
-    std::vector<LogicLong> logicLongList;
-    for (int i = 0; i < length; i++)
-    {
-        logicLongList.push_back(LogicLong(readVint(), readVint()));
-    }
-    return logicLongList;
-}
-
 void Bytestream::writeByte(uint8_t value)
 {
     bitoffset = 0;
@@ -564,33 +523,6 @@ void Bytestream::writeHexa(const std::string &data, size_t length)
     }
     messagePayload.insert(messagePayload.end(), bytes.begin(), bytes.end());
     offset += length;
-}
-
-void Bytestream::encodeLogicLong(const LogicLong &logicLong)
-{
-    writeVint(logicLong.high);
-    writeVint(logicLong.low);
-}
-
-void Bytestream::encodeLogicLongList(const std::vector<LogicLong> &logicLongList)
-{
-    int length = logicLongList.size();
-    writeVint(length);
-    for (const auto &logicLong : logicLongList)
-    {
-        writeVint(logicLong.high);
-        writeVint(logicLong.low);
-    }
-}
-
-void Bytestream::encodeIntList(const std::vector<int> &intList)
-{
-    int length = intList.size();
-    writeVint(length);
-    for (const auto &i : intList)
-    {
-        writeVint(i);
-    }
 }
 
 void Bytestream::writePacketHeader(int packetID, int packetVersion)
