@@ -5,8 +5,7 @@ This project provides a basic TCP client implementation in C++. It does not incl
 ## Adding a Client Packet
 1. Create a new file inside `Packets/Client`.
 2. Define a function that takes a pointer to `CallingInstance` and a socket as arguments.
-3. Register the function inside `Classes/Core/Messaging.cpp` by modifying `handlePacket`.
-4. Use a `switch` statement to call the function based on the received packet ID.
+3. Register it in `createMessage` by adding it to the appropriate `switch` case.
 
 ## Creating a Server Packet
 1. Create a new file inside `Packets/Server`.
