@@ -30,6 +30,6 @@
 *.exe
 *.out
 *.app
-libm.dll
+tcpclient
 
 .vscode

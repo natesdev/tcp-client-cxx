@@ -1,7 +1,7 @@
 CXX = g++
-CXXFLAGS = -Wall -g -Wextra -fPIC
-LIBS = -lz -lmongocxx -lbsoncxx
-TARGET = libm.dll
+CXXFLAGS = -Wall -g -Wextra
+LIBS = -lz 
+TARGET = tcpclient
 
 SOURCES = $(wildcard *.cpp) \
           $(wildcard Classes/*.cpp) \
@@ -15,7 +15,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -shared -o $(TARGET) $(OBJECTS) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
