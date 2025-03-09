@@ -1,6 +1,9 @@
 #include <iostream>
+#include <source_location>
+#include <regex>
 
 #include "Logger.h"
+#include "../../Main.h"
 
 #define COLOR_INFO "\033[34m"
 #define COLOR_ERROR "\033[31m"
@@ -9,30 +12,45 @@
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
 
-Logger::Logger(const std::string &className, bool debugLogging)
-    : className(className), debugLogging(debugLogging) {}
+Logger::Logger(const std::string &className)
+    : className(className) {}
 
-void Logger::Info(const std::string &methodName, const std::string &message)
+std::string extractFunctionName(const std::string &fullName)
 {
-    std::cout << COLOR_INFO << "[" << className << "::" << methodName << " " << "Info" << "]" << COLOR_RESET
-              << " -> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+    static const std::regex functionPattern(R"((?:.*::)?([^:\s]+)\s*\(.*\))");
+    std::smatch match;
+    return std::regex_search(fullName, match, functionPattern) ? match[1].str() : fullName;
 }
 
-void Logger::Error(const std::string &methodName, const std::string &message)
+void Logger::info(const std::string &message, const std::source_location &loc)
 {
-    std::cout << COLOR_ERROR << "[" << className << "::" << methodName << " " << "ERR" << "]" << COLOR_RESET
-              << " -> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+    std::cout << COLOR_INFO << "[" << className << "::" << extractFunctionName(loc.function_name()) << " INFO] " << COLOR_RESET
+              << "-> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
 }
 
-void Logger::Warn(const std::string &methodName, const std::string &message)
-{
-    std::cout << COLOR_WARN << "[" << className << "::" << methodName << " " << "Warn" << "]" << COLOR_RESET
-              << " -> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
-}
-
-void Logger::Debug(const std::string &methodName, const std::string &message)
+void Logger::error(const std::string &message, const std::source_location &loc)
 {
     if (debugLogging)
-    std::cout << COLOR_DEBUG << "[" << className << "::" << methodName << " " << "Debug" << "]" << COLOR_RESET
-              << " -> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+        std::cout << COLOR_ERROR << "[" << loc.file_name() << ":" << loc.line() << ":" << loc.column() << " ERROR] " << COLOR_RESET
+                  << "-> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+    else
+        std::cout << COLOR_ERROR << "[" << className << "::" << extractFunctionName(loc.function_name()) << " ERROR] " << COLOR_RESET
+                  << "-> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+}
+
+void Logger::warn(const std::string &message, const std::source_location &loc)
+{
+    if (debugLogging)
+        std::cout << COLOR_WARN << "[" << loc.file_name() << ":" << loc.line() << ":" << loc.column() << " WARN] " << COLOR_RESET
+                  << "-> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+    else
+        std::cout << COLOR_WARN << "[" << className << "::" << extractFunctionName(loc.function_name()) << " WARN] " << COLOR_RESET
+                  << "-> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
+}
+
+void Logger::debug(const std::string &message, const std::source_location &loc)
+{
+    if (debugLogging)
+        std::cout << COLOR_DEBUG << "[" << loc.file_name() << ":" << loc.line() << ":" << loc.column() << " DEBUG] " << COLOR_RESET
+                  << "-> " << COLOR_WHITE << message << COLOR_RESET << std::endl;
 }
