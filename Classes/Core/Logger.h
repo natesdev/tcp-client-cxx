@@ -1,18 +1,24 @@
 #pragma once
-
 #include <string>
+#include <source_location>
 
 class Logger
 {
-public:
-    Logger(const std::string &className, bool debugLogging = false);
-
-    void Info(const std::string &methodName, const std::string &message);
-    void Error(const std::string &methodName, const std::string &message);
-    void Warn(const std::string &methodName, const std::string &message);
-    void Debug(const std::string &methodName, const std::string &message);
-
 private:
     std::string className;
-    bool debugLogging;
+
+public:
+    explicit Logger(const std::string &className);
+
+    void info(const std::string &message,
+              const std::source_location &loc = std::source_location::current());
+
+    void error(const std::string &message,
+               const std::source_location &loc = std::source_location::current());
+
+    void warn(const std::string &message,
+              const std::source_location &loc = std::source_location::current());
+
+    void debug(const std::string &message,
+               const std::source_location &loc = std::source_location::current());
 };
